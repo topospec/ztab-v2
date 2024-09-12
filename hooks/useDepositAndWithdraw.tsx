@@ -2,13 +2,12 @@ import { controllerContract, usdcContract } from "@/config/contracts";
 import { ethers } from "ethers";
 import { useState } from "react";
 import { prepareContractCall, sendTransaction } from "thirdweb";
+import { useActiveAccount } from "thirdweb/react";
 import { Account } from "thirdweb/wallets";
 
-export const useDepositAndWithdraw = ({
-  account,
-}: {
-  account: Account | undefined;
-}) => {
+export const useDepositAndWithdraw = () => {
+  const account = useActiveAccount();
+
   const [isApproved, setIsApproved] = useState(false);
   const [isDeposited, setIsDeposited] = useState(false);
 
@@ -52,11 +51,41 @@ export const useDepositAndWithdraw = ({
     }
   };
 
+  const redeem = async (amount: number) => {
+    console.log("Redeeming...", account?.address);
+    if (!account?.address) return;
+    const transaction = prepareContractCall({
+      contract: controllerContract,
+      method: "function redeem(uint256 burnAmount)",
+      params: [ethers.parseEther(amount.toString())],
+    });
+    const { transactionHash } = await sendTransaction({
+      account,
+      transaction,
+    });
+
+    console.log("transactionHash", transactionHash);
+  };
+
+  const closePosition = async () => {
+    console.log("Closing position...", account?.address);
+    if (!account?.address) return;
+    const transaction = prepareContractCall({
+      contract: controllerContract,
+      method: "function closePosition()",
+    });
+    const { transactionHash } = await sendTransaction({
+      account,
+      transaction,
+    });
+  };
+
   return {
     approve,
-    isApproved,
     deposit,
+    closePosition,
+    isApproved,
     isDeposited,
-    withdraw: () => {},
+    redeem,
   };
 };

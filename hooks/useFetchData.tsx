@@ -1,5 +1,5 @@
 import { useActiveAccount, useReadContract } from "thirdweb/react";
-import { controllerContract, usdcContract, uvaContract } from "@/config/contracts";
+import { controllerContract, oracleContract, usdcContract, uvaContract } from "@/config/contracts";
 
 export const useFetchData = () => {
   const account = useActiveAccount();
@@ -45,9 +45,19 @@ export const useFetchData = () => {
     params: [account?.address || "0x", controllerContract.address],
   });
 
+  const {
+    data: uvaPrice,
+    isLoading: isLoadingUvaPrice,
+    refetch: refetchUvaPrice,
+  } = useReadContract({
+    contract: oracleContract,
+    method: "function getUVAPrice() returns (uint256)",
+  });
+
   return {
     collateralDeposited,
     mintedUva,
+    uvaPrice,
     userPosition,
     usdcAllowance
   };

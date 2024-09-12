@@ -1,3 +1,5 @@
+"use client";
+
 import { DataItem } from "@/components/DataCard";
 import { text, title } from "@/components/primitives";
 import { useDepositAndWithdraw } from "@/hooks/useDepositAndWithdraw";
@@ -28,17 +30,20 @@ const config = {
 const Position = () => {
   const account = useActiveAccount();
 
-  const { collateralDeposited, mintedUva, userPosition } = useFetchData();
-  const { approve, isApproved, deposit, isDeposited } = useDepositAndWithdraw({
-    account,
-  });
+  const { collateralDeposited, mintedUva, userPosition, uvaPrice } =
+    useFetchData();
+  const { approve, isApproved, deposit, isDeposited } = useDepositAndWithdraw();
+
+  const collateralRatio = userPosition ? Number(userPosition[2]) : 0;
+  const liquidationTreshold = userPosition ? Number(userPosition[3]) : 0;
+
+  console.log(collateralRatio, liquidationTreshold);
 
   const [depositAmount, setDepositAmount] = useState(0);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
 
   const [success, setSuccess] = useState(false);
 
-  
   const successMemo = useMemo(() => {
     if (isDeposited) {
       setSuccess(true);
@@ -59,7 +64,11 @@ const Position = () => {
           <div className="flex flex-col border border-gray-400 rounded-xl p-6 w-full">
             <div className="flex flex-row justify-between items-center">
               <p className={text({ size: "lg" })}>Overview:</p>
-              <Chip color="danger">Liquidated</Chip>
+              {collateralRatio <= liquidationTreshold ? (
+                <Chip color="danger">Liquidated</Chip>
+              ) : (
+                <Chip color="success">Safe</Chip>
+              )}
             </div>
 
             <div className="hidden md:flex flex-col gap-6 mt-4">
@@ -67,7 +76,7 @@ const Position = () => {
                 <DataItem
                   label="Collateral Deposited:"
                   value={parseFloat(
-                    ethers.formatEther(collateralDeposited || "0")
+                    ethers.formatEther((userPosition && userPosition[0]) || "0")
                   ).toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
@@ -115,6 +124,22 @@ const Position = () => {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2,
                   })}`}
+                />
+              </div>
+              <div className="flex flex-row justify-center gap-12">
+                <DataItem
+                  label="UVA Price (USDC):"
+                  value={parseFloat(
+                    ethers.formatUnits((uvaPrice && uvaPrice) || "0", 18)
+                  ).toFixed(2)}
+                />
+                <DataItem
+                  label="UVA Price (nuARS):"
+                  value={`${
+                    (parseFloat(
+                      ethers.formatUnits((uvaPrice && uvaPrice) || "0", 18)
+                    ) * 1220).toFixed(2)
+                  }`}
                 />
               </div>
             </div>
@@ -169,7 +194,7 @@ const Position = () => {
           <div className="flex flex-col border border-gray-400 rounded-xl p-6 w-full">
             <p className={text({ size: "lg" })}>Configure UVA/USDC position:</p>
             <div className="flex flex-col gap-1 mt-4">
-              <p className={text({ size: "sm" })}>Deposit Collateral</p>
+              <p className={text({ size: "sm" })}>Add Collateral</p>
               <Input
                 label="Collateral Amount"
                 onChange={(e) => setDepositAmount(Number(e.target.value))}
@@ -180,7 +205,7 @@ const Position = () => {
                 </Button>
               ) : (
                 <Button className="mt-2" onClick={() => deposit(depositAmount)}>
-                  Mint UVA
+                  Add Collateral
                 </Button>
               )}
             </div>
@@ -188,6 +213,11 @@ const Position = () => {
               <p className={text({ size: "sm" })}>Withdraw UVA</p>
               <Input label="Collateral Amount" />
               <Button className="mt-2">Withdraw</Button>
+            </div>
+            <div className="flex flex-col gap-1 mt-4">
+              <Button className="mt-2" color="danger">
+                Close my position
+              </Button>
             </div>
           </div>
         </div>

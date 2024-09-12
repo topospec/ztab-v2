@@ -39,7 +39,6 @@ const Position = () => {
   const [success, setSuccess] = useState(false);
 
   
-
   const successMemo = useMemo(() => {
     if (isDeposited) {
       setSuccess(true);
@@ -60,7 +59,7 @@ const Position = () => {
           <div className="flex flex-col border border-gray-400 rounded-xl p-6 w-full">
             <div className="flex flex-row justify-between items-center">
               <p className={text({ size: "lg" })}>Overview:</p>
-              <Chip color="success">Healthy</Chip>
+              <Chip color="danger">Liquidated</Chip>
             </div>
 
             <div className="hidden md:flex flex-col gap-6 mt-4">

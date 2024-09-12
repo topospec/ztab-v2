@@ -26,8 +26,8 @@ import {
   Logo,
 } from "@/components/icons";
 import { ConnectButton } from "thirdweb/react";
-import { client } from "@/pages";
 import { avalancheFuji } from "thirdweb/chains";
+import { client } from "@/config/contracts";
 
 export const Navbar = () => {
   const searchInput = (
@@ -56,8 +56,8 @@ export const Navbar = () => {
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
         <NavbarBrand className="gap-3 max-w-fit">
           <NextLink className="flex justify-start items-center gap-1" href="/">
-            <Logo />
-            <p className="font-bold text-inherit">UVA</p>
+            {/* <Logo /> */}
+            <p className="font-bold text-inherit">ZTABILIZE</p>
           </NextLink>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">

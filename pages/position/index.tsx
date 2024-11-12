@@ -28,11 +28,12 @@ const config = {
 };
 
 const Position = () => {
-  const account = useActiveAccount();
 
   const { collateralDeposited, mintedUva, userPosition, uvaPrice } =
     useFetchData();
-  const { approve, isApproved, deposit, isDeposited } = useDepositAndWithdraw();
+
+  const { approve, isApproved, deposit, isDeposited, closePosition, redeem } =
+    useDepositAndWithdraw();
 
   const collateralRatio = userPosition ? Number(userPosition[2]) : 0;
   const liquidationTreshold = userPosition ? Number(userPosition[3]) : 0;
@@ -135,11 +136,11 @@ const Position = () => {
                 />
                 <DataItem
                   label="UVA Price (nuARS):"
-                  value={`${
-                    (parseFloat(
+                  value={`${(
+                    parseFloat(
                       ethers.formatUnits((uvaPrice && uvaPrice) || "0", 18)
-                    ) * 1220).toFixed(2)
-                  }`}
+                    ) * 1220
+                  ).toFixed(2)}`}
                 />
               </div>
             </div>
